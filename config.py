@@ -11,7 +11,7 @@ conn = psycopg2.connect(
 )
 cur = conn.cursor()
 
-# Ensure contacts table exists with contact_group
+# Ensure contacts table exists with contact_group and birthday
 cur.execute("""
             CREATE TABLE IF NOT EXISTS contacts (
                                                     id SERIAL PRIMARY KEY,
@@ -19,7 +19,22 @@ cur.execute("""
                 phone VARCHAR(20) NOT NULL,
                 email VARCHAR(100),
                 address TEXT,
-                contact_group VARCHAR(50) DEFAULT 'Other'
+                contact_group VARCHAR(50) DEFAULT 'Other',
+                birthday DATE
+                )
+            """)
+
+# Ensure deleted_contacts table exists with birthday
+cur.execute("""
+            CREATE TABLE IF NOT EXISTS deleted_contacts (
+                                                            id INTEGER PRIMARY KEY,
+                                                            name VARCHAR(100) NOT NULL,
+                phone VARCHAR(20) NOT NULL,
+                email VARCHAR(100),
+                address TEXT,
+                contact_group VARCHAR(50) DEFAULT 'Other',
+                deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                birthday DATE
                 )
             """)
 conn.commit()

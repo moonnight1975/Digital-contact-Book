@@ -47,8 +47,18 @@ def dashboard():
             label = ctk.CTkLabel(row_frame, text=contact_text, anchor="w")
             label.pack(side="left", padx=5)
 
-            # Delete contact
+            # Delete contact (soft delete)
             def delete_contact(contact_id=row[0]):
+                # Move to deleted_contacts table
+                cur.execute("SELECT id, name, phone, email, address, contact_group FROM contacts WHERE id = %s", (contact_id,))
+                contact_data = cur.fetchone()
+                if contact_data:
+                    cur.execute("""
+                                INSERT INTO deleted_contacts (id, name, phone, email, address, contact_group)
+                                VALUES (%s, %s, %s, %s, %s, %s)
+                                """, contact_data)
+
+                # Delete from contacts table
                 cur.execute("DELETE FROM contacts WHERE id = %s", (contact_id,))
                 conn.commit()
                 refresh_contacts(selected_group)
@@ -73,6 +83,11 @@ def dashboard():
     add_btn.pack(pady=10, padx=10, fill="x")
     add_btn.bind("<Enter>", lambda e: hover_in(add_btn))
     add_btn.bind("<Leave>", lambda e: hover_out(add_btn))
+
+    ref_btn= ctk.CTkButton(button_frame, text="Refresh", command=lambda: refresh_contacts(group_var.get()), fg_color="grey")
+    ref_btn.pack(pady=10, padx=10, fill="x")
+    ref_btn.bind("<Enter>", lambda e: hover_in(ref_btn))
+    ref_btn.bind("<Leave>", lambda e: hover_out(ref_btn))
 
     # Initial load
     refresh_contacts()
