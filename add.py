@@ -74,7 +74,7 @@ def add_contact():
                 cur.execute(
                     """
                     INSERT INTO contacts (name, phone, email, address, contact_group)
-                    VALUES (%s, %s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s,%s)
                     """,
                     (name, phone, email, address, group)
                 )
@@ -87,7 +87,7 @@ def add_contact():
 
                 # Clear fields
                 name_entry.delete(0, 'end')
-                phone_var.set("")
+                phone_var.set("enter phone")
                 address_entry.delete(0, 'end')
                 email_entry.delete(0, 'end')
                 group_dropdown.set("Other")
