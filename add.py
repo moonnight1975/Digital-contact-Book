@@ -19,7 +19,7 @@ def add_contact():
     # Phone entry - WITHOUT textvariable initially
     phone_entry = ctk.CTkEntry(
         new_win,
-        placeholder_text="Enter phone number"
+        placeholder_text="Enter phone no."
     )
     phone_entry.pack(pady=10)
 

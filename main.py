@@ -59,8 +59,8 @@ setting_btn.pack(pady=20)
 
 group_btn = ctk.CTkButton(
     app,
-    text="Groups ",
-    command=lambda: label.configure(text="Groups feature coming soon!"),
+    text="Events ",
+    command=lambda: label.configure(text="Events feature coming soon!"),
     fg_color="grey",
     hover_color="green",
     text_color="black"
