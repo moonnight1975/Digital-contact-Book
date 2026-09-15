@@ -1,134 +1,142 @@
 import customtkinter as ctk
-from config import app
+from config import app, DB_ENGINE, DB_PATH, DBHelper
+from theme import COLORS
 
-# --- Global list to track all open windows (main app + Toplevels) ---
-# We start with the main app instance.
-open_windows = [app]
+
+def render_setting_view(parent):
+    """Renders the modern Settings & Preferences view inside parent."""
+    for widget in parent.winfo_children():
+        widget.destroy()
+
+    scroll = ctk.CTkScrollableFrame(parent, fg_color="transparent")
+    scroll.pack(fill="both", expand=True, padx=25, pady=20)
+
+    # Header
+    header_frame = ctk.CTkFrame(scroll, fg_color="transparent")
+    header_frame.pack(fill="x", pady=(0, 20))
+
+    title_label = ctk.CTkLabel(
+        header_frame,
+        text="⚙️ Preferences & Settings",
+        font=ctk.CTkFont(size=22, weight="bold"),
+        anchor="w"
+    )
+    title_label.pack(anchor="w")
+
+    sub_label = ctk.CTkLabel(
+        header_frame,
+        text="Customize appearance, check database status, and view application info.",
+        font=ctk.CTkFont(size=13),
+        text_color="gray",
+        anchor="w"
+    )
+    sub_label.pack(anchor="w", pady=(2, 0))
+
+    # --- Section 1: Appearance ---
+    app_card = ctk.CTkFrame(scroll, corner_radius=12, fg_color=("#FFFFFF", "#1C202C"))
+    app_card.pack(fill="x", pady=(0, 16))
+
+    ctk.CTkLabel(
+        app_card,
+        text="🎨 Appearance Mode",
+        font=ctk.CTkFont(size=15, weight="bold"),
+        anchor="w"
+    ).pack(fill="x", padx=20, pady=(16, 4))
+
+    ctk.CTkLabel(
+        app_card,
+        text="Select your preferred UI color scheme (Dark, Light, or System default).",
+        font=ctk.CTkFont(size=12),
+        text_color="gray",
+        anchor="w"
+    ).pack(fill="x", padx=20, pady=(0, 12))
+
+    def on_mode_change(mode):
+        ctk.set_appearance_mode(mode.lower())
+
+    mode_seg = ctk.CTkSegmentedButton(
+        app_card,
+        values=["Dark", "Light", "System"],
+        command=on_mode_change,
+        height=36,
+        selected_color=COLORS["primary"],
+        selected_hover_color=COLORS["primary_hover"]
+    )
+    current_mode = ctk.get_appearance_mode().capitalize()
+    mode_seg.set(current_mode if current_mode in ["Dark", "Light", "System"] else "Dark")
+    mode_seg.pack(padx=20, pady=(0, 20), anchor="w")
+
+    # --- Section 2: Database Status & Diagnostic ---
+    db_card = ctk.CTkFrame(scroll, corner_radius=12, fg_color=("#FFFFFF", "#1C202C"))
+    db_card.pack(fill="x", pady=(0, 16))
+
+    ctk.CTkLabel(
+        db_card,
+        text="🗄️ Database Information",
+        font=ctk.CTkFont(size=15, weight="bold"),
+        anchor="w"
+    ).pack(fill="x", padx=20, pady=(16, 4))
+
+    stats = DBHelper.get_stats()
+
+    info_grid = ctk.CTkFrame(db_card, fg_color="transparent")
+    info_grid.pack(fill="x", padx=20, pady=(4, 20))
+
+    def add_info_row(f, label, val, is_badge=False):
+        row = ctk.CTkFrame(f, fg_color="transparent")
+        row.pack(fill="x", pady=4)
+        ctk.CTkLabel(row, text=label, font=ctk.CTkFont(size=12, weight="bold"), text_color="gray", width=140, anchor="w").pack(side="left")
+        if is_badge:
+            ctk.CTkLabel(
+                row,
+                text=f" {val} ",
+                font=ctk.CTkFont(size=11, weight="bold"),
+                fg_color=COLORS["success"],
+                text_color="#FFFFFF",
+                corner_radius=4
+            ).pack(side="left")
+        else:
+            ctk.CTkLabel(row, text=val, font=ctk.CTkFont(size=12), anchor="w").pack(side="left")
+
+    engine_name = "SQLite Database (Local Embedded)" if DB_ENGINE == "sqlite" else "PostgreSQL Database (Network)"
+    add_info_row(info_grid, "Engine:", engine_name, is_badge=True)
+    add_info_row(info_grid, "Storage Location:", DB_PATH if DB_ENGINE == "sqlite" else "localhost:5432 / mydb")
+    add_info_row(info_grid, "Active Contacts:", str(stats["total"]))
+    add_info_row(info_grid, "Recycle Bin Items:", str(stats["trash"]))
+
+    # --- Section 3: About ---
+    about_card = ctk.CTkFrame(scroll, corner_radius=12, fg_color=("#FFFFFF", "#1C202C"))
+    about_card.pack(fill="x", pady=(0, 16))
+
+    ctk.CTkLabel(
+        about_card,
+        text="ℹ️ About Digital Contact Book",
+        font=ctk.CTkFont(size=15, weight="bold"),
+        anchor="w"
+    ).pack(fill="x", padx=20, pady=(16, 4))
+
+    about_text = (
+        "Digital Contact Book — Modern Desktop Edition\n"
+        "Version: 2.0.0\n"
+        "Created by Sahil, Litto and Anant\n\n"
+        "Features: Unified single-window dashboard, live contact search, contact categorization, "
+        "smart avatars, soft delete & trash recovery, and seamless dual-engine database resilience."
+    )
+
+    ctk.CTkLabel(
+        about_card,
+        text=about_text,
+        font=ctk.CTkFont(size=12),
+        text_color="gray",
+        justify="left",
+        anchor="w"
+    ).pack(fill="x", padx=20, pady=(4, 20))
+
 
 def setting():
-    # --- Settings Window Setup ---
-    setting_win = ctk.CTkToplevel(app)
-    setting_win.geometry("400x300")
-    setting_win.title("Settings")
-    setting_win.transient(app)
-
-    # **FIX**: Add the new window to our tracker list
-    open_windows.append(setting_win)
-    # **FIX**: When the window is closed, remove it from the list to prevent errors
-    setting_win.bind("<Destroy>", lambda e: open_windows.remove(setting_win))
-
-    title_label = ctk.CTkLabel(setting_win, text="Settings", font=("Arial", 20))
-    title_label.pack(pady=10)
-
-    # =========================
-    # Appearance Section
-    # =========================
-    def open_appearance_window():
-        apper_win = ctk.CTkToplevel(setting_win)
-        apper_win.geometry("400x300")
-        apper_win.title("Appearance")
-        apper_win.transient(setting_win)
-
-        # **FIX**: Track this new window as well
-        open_windows.append(apper_win)
-        apper_win.bind("<Destroy>", lambda e: open_windows.remove(apper_win))
-
-        label = ctk.CTkLabel(apper_win, text="Choose Appearance Mode", font=("Arial", 16, "bold"))
-        label.pack(pady=10)
-
-        # Dropdown for Light/Dark/System
-        def update_appearance_mode(mode):
-            ctk.set_appearance_mode(mode)
-
-        appearance_dropdown = ctk.CTkOptionMenu(
-            apper_win,
-            values=["Light", "Dark", "System"],
-            command=update_appearance_mode
-        )
-        appearance_dropdown.set(ctk.get_appearance_mode())
-        appearance_dropdown.pack(pady=10, padx=20, fill="x")
-
-        # --- **FIXED**: Function to change the background color of ALL windows ---
-        def change_bg_color(choice):
-            color = choice.lower()
-            # Iterate through all tracked windows and update their background
-            for window in open_windows:
-                if window.winfo_exists():
-                    window.configure(fg_color=color)
-
-        color_label = ctk.CTkLabel(apper_win, text="Pick Background Color", font=("Arial", 14))
-        color_label.pack(pady=10)
-
-        color_combo = ctk.CTkComboBox(
-            apper_win,
-            values=["Maroon", "#a2d2ff", "Green", "Black"], # Added default dark color
-            command=change_bg_color,
-            width=200
-        )
-        color_combo.set("Select Color")
-        color_combo.pack(pady=10)
-
-        # --- **FIXED**: Reset button to restore default colors on all windows ---
-        def reset_to_default():
-            # Set mode back to System
-            ctk.set_appearance_mode("System")
-            appearance_dropdown.set("System")
-
-            # Get the default background color for the current theme
-            default_color = ctk.ThemeManager.theme["CTk"]["fg_color"]
-
-            # Apply default color to all open windows
-            for window in open_windows:
-                if window.winfo_exists():
-                    window.configure(fg_color=default_color)
-
-        reset_btn = ctk.CTkButton(apper_win, text="Reset to System Default", fg_color="purple",
-                                  hover_color="darkmagenta",
-                                  text_color="white",
-                                  corner_radius=200, command=reset_to_default)
-        reset_btn.pack(pady=20, padx=20, fill="x")
-
-    appear_btn = ctk.CTkButton(setting_win, text="Appearance", fg_color="purple",
-                               hover_color="darkmagenta",
-                               text_color="white",
-                               corner_radius=200, command=open_appearance_window)
-    appear_btn.pack(pady=10, padx=20, fill="x")
-
-    # =========================
-    # About Section
-    # =========================
-    def open_about_window():
-        about_win = ctk.CTkToplevel(setting_win)
-        about_win.geometry("400x250")
-        about_win.title("About")
-        about_win.transient(setting_win)
-
-        # **FIX**: Track the about window
-        open_windows.append(about_win)
-        about_win.bind("<Destroy>", lambda e: open_windows.remove(about_win))
-
-        # **FIX**: Apply the current background color when opening
-        current_bg = app.cget("fg_color")
-        about_win.configure(fg_color=current_bg)
-
-        label1 = ctk.CTkLabel(about_win, text="About This App", font=("Arial", 16, "bold"))
-        label1.pack(pady=10)
-
-        label2 = ctk.CTkLabel(
-            about_win,
-            text="Digital Contact Book\nVersion 1.10\nDeveloped by Litto & Anant",
-            justify="center"
-        )
-        label2.pack(pady=20)
-
-        close_btn = ctk.CTkButton(about_win, text="Close", fg_color="purple",
-                                  hover_color="darkmagenta",
-                                  text_color="white",
-                                  corner_radius=200, command=about_win.destroy)
-        close_btn.pack(pady=10)
-
-    about_btn = ctk.CTkButton(setting_win, text="About", fg_color="purple",
-                              hover_color="darkmagenta",
-                              text_color="white",
-                              corner_radius=200, command=open_about_window)
-    about_btn.pack(pady=10, padx=20, fill="x")
+    """Fallback standalone window for settings."""
+    modal = ctk.CTkToplevel(app)
+    modal.geometry("600x550")
+    modal.title("Preferences & Settings")
+    modal.transient(app)
+    render_setting_view(modal)

@@ -1,25 +1,73 @@
-<!DOCTYPE html>
-<html lang="en">
+# 📇 Digital Contact Book — Modern Desktop Edition
 
-</head>
-<body>
-    <h1>Digital Contact Book</h1>
-    <h2>Overview</h2>
-    <p>Welcome to Project Digital Contact! This is a simple contact management system built using Python, Tkinter for the Graphical User Interface (GUI), and PostgreSQL as the database.</p>
-    <h2>Getting Started</h2>
-    <ul>
-        <li><a href="https://www.python.org/downloads/">Install Python (version 3.x)</a></li>
-        <li><a href="https://docs.python.org/3/library/tk.html">Tkinter (included with Python)</a></li>
-        <li><a href="https://pypi.org/project/psycopg2/">psycopg2</a></li>
-        <li><a href="https://www.sqlalchemy.org/">sqlalchemy</a></li>
-        <li>Set up PostgreSQL and create a new database and user</li>
-        <li>Configure the project: Replace `db_config` in `app.py` with your PostgreSQL connection details (host, username, password, database name)</li>
-        <li>Run the application: Execute the command 'python app.py' in your terminal or command prompt</li>
-        <li>Use the contact management system: The main window will appear with options to add, view, update, and delete contacts.</li>
-    </ul>
-    <h2>Contributing</h2>
-    <p>We welcome contributions to Project Digital Contact! If you find any issues or have suggestions for improvements, please open a new issue or submit a pull request.</p>
-    <h2>License</h2>
-    <p>Project Digital Contact is licensed under the <a href="https://choosealicense.com/licenses/mit/">MIT License</a></p>
-</body>
-</html>
+A modernized, high-performance desktop contact management system built using **Python 3**, **CustomTkinter**, and a resilient **Dual-Engine Database (PostgreSQL + SQLite Auto-Fallback)**.
+
+---
+
+## ✨ Features
+
+- **🎨 Modern Single-Window UI**:
+  - Unified two-column desktop interface with sidebar navigation and responsive viewport.
+  - Consistent modern dark and light mode themes with polished rounded cards and typography.
+- **📊 Interactive Dashboard**:
+  - Real-time metric cards displaying total contacts, family, work, and friends counts.
+  - Quick action shortcuts and recent contacts list.
+- **👥 Dynamic Contacts Directory**:
+  - **Live Search**: Filter contacts instantly as you type by name, phone number, or email.
+  - **Category Pills**: Filter by groups (All, Family, Work, Friends, Other).
+  - **Initials Avatars**: Deterministic, vibrant avatar generator for every contact.
+  - **Quick Actions**: One-click phone/email copying to clipboard, in-place edit, and soft delete.
+- **➕ Smart Add & Edit View**:
+  - Live initials avatar preview reflecting the contact name in real time.
+  - Phone number validation and digit formatting.
+  - Form validation with floating feedback notifications.
+- **🗑️ Recycle Bin (Trash Recovery)**:
+  - Soft-delete protection prevents accidental data loss.
+  - 1-click contact restoration or permanent removal.
+- **🗄️ Dual-Engine Database Resilience**:
+  - Automatically attempts connection to PostgreSQL.
+  - If PostgreSQL is offline or unreachable, seamlessly falls back to embedded SQLite (`contacts.db`) with zero manual configuration.
+
+---
+
+## 🚀 Getting Started
+
+### 1. Prerequisites
+- Python 3.10+
+- Install dependencies:
+  ```bash
+  pip install customtkinter psycopg2-binary
+  ```
+
+### 2. Run the Application
+Launch the application by executing:
+```bash
+python3 main.py
+```
+
+---
+
+## 📁 Project Structure
+
+```
+Digital-contact-Book/
+├── main.py          # Application entry point, layout, and sidebar navigation
+├── config.py        # Database manager (PostgreSQL + SQLite fallback) and root app config
+├── theme.py         # Color palette, group styles, and avatar generator
+├── dashboard.py     # Dashboard view with metrics and recent contacts
+├── view.py          # Contacts directory, live search, and recycle bin
+├── add.py           # Add and edit contact views with live avatar preview
+├── setting.py       # Theme switcher, database status, and app info
+├── events.py        # Upcoming events and birthday tracker
+└── contacts.db      # SQLite local database
+```
+
+---
+
+## 👥 Authors
+Created by **Sahil, Litto and Anant**.
+
+---
+
+## 📜 License
+Licensed under the [MIT License](LICENSE).
